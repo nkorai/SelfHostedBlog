@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  ghost:
+    container_name: ghost
+    image: ghost:alpine
+    restart: always
+    hostname: ghost
+    environment: # this section can be commented to start in dev mode by default
+      - url="http://74.111.98.229/"
+      - NODE_ENV=production # set either production or development, then it will load the respective config
+  rproxy:
+    container_name: rproxy
+    hostname: rproxy
+    image: nginx
+    depends_on:
+      - "ghost"
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - "./nginx/conf/nginx:/etc/nginx"
+      - "./ssl/private/:/etc/ssl/private"
+    links:
+      - ghost
