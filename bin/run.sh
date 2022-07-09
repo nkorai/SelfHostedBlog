@@ -22,15 +22,15 @@ cp bin/nginx/new_default.conf ./build/nginx/conf/nginx/conf.d/sites-enabled
 rm ./build/nginx/conf/nginx/conf.d/default.conf
 
 # Point nginx configuration to our custom new default configuration
-sed -i 's|include /etc/nginx/conf.d/\*.conf;|include /etc/nginx/conf.d/sites-enabled/\*.conf;|g' ./build/nginx/conf/nginx/nginx.conf
+sed -i "s|include /etc/nginx/conf.d/\*.conf;|include /etc/nginx/conf.d/sites-enabled/\*.conf;|g" ./build/nginx/conf/nginx/nginx.conf
 
 # Create DDNS folder and copy over our config
 mkdir -p ./build/ddns
 cp bin/ddns/config.json ./build/ddns
 
 # Inject DDNS password into DDNS configuration
-ddns_password=`secrets/namecheap.txt`
-sed -i 's|"password": "password",|"password": "${ddns_password}",|g' ./build/ddns/config.json
+ddns_password=$(<secrets/ddns_secret.txt)
+sed -i "s|ddns_password|${ddns_password}|g" ./build/ddns/config.json
 
 
 # Ready to bring up our services
