@@ -23,3 +23,36 @@ services:
       - "./ssl/private/:/etc/ssl/private"
     links:
       - ghost
+  ddns-updater:
+    image: qmcgaw/ddns-updater
+    container_name: ddns-updater
+    network_mode: bridge
+    ports:
+      - 8000:8000/tcp
+    volumes:
+      - ./data:/updater/data
+    environment:
+      - CONFIG="{\r\n  \"settings\": [\r\n    {\r\n      \"provider\": \"namecheap\",\r\n      \"domain\": \"nkorai.com\",\r\n      \"host\": \"@\",\r\n      \"password\": \"password\",\r\n      \"provider_ip\": true\r\n    }\r\n  ]\r\n}"
+      - PERIOD=5m
+      - UPDATE_COOLDOWN_PERIOD=5m
+      - PUBLICIP_FETCHERS=all
+      - PUBLICIP_HTTP_PROVIDERS=all
+      - PUBLICIPV4_HTTP_PROVIDERS=all
+      - PUBLICIPV6_HTTP_PROVIDERS=all
+      - PUBLICIP_DNS_PROVIDERS=all
+      - PUBLICIP_DNS_TIMEOUT=3s
+      - HTTP_TIMEOUT=10s
+
+      # Web UI
+      - LISTENING_PORT=8000
+      - ROOT_URL=/
+
+      # Backup
+      - BACKUP_PERIOD=0 # 0 to disable
+      - BACKUP_DIRECTORY=/updater/data
+
+      # Other
+      - LOG_LEVEL=info
+      - LOG_CALLER=hidden
+      - SHOUTRRR_ADDRESSES=
+    restart: always
