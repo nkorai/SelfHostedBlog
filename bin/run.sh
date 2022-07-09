@@ -29,9 +29,9 @@ mkdir -p ./build/ddns
 cp bin/ddns/config.json ./build/ddns
 
 # Inject DDNS password into DDNS configuration
-ddns_password=$(<secrets/ddns_secret.txt)
+ddns_password=$(<bin/secrets/ddns_secret.txt)
 sed -i "s|ddns_password|${ddns_password}|g" ./build/ddns/config.json
 
 
 # Ready to bring up our services
-# docker-compose up
+docker-compose up
