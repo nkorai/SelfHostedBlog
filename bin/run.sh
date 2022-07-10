@@ -27,6 +27,13 @@ else
   mkdir ./build/nginx/conf.d/sites-enabled
 
   rm ./build/nginx/conf.d/default.conf
+
+  ###
+  # SSL configuration
+  ###
+  echo "### Copying over dummy placeholder certs into nginx as it fails to come up without them in place. These will later be replaced by actual certs via LetsEncrypt"
+  cp ./bin/ssl/placeholder_fullchain.pem ./build/ssl/private/fullchain.pem
+  cp ./bin/ssl/placeholder_privkey.pem ./build/ssl/private/privkey.pem
 fi
 
 echo "### Copying over new nginx configuration"
@@ -51,13 +58,6 @@ fi
 echo "### Inject DDNS password into DDNS configuration"
 ddns_password=$(<bin/secrets/ddns_secret.txt)
 sed -i "s|ddns_password|${ddns_password}|g" ./build/ddns/config.json
-
-###
-# SSL configuration
-###
-echo "### Copying over dummy placeholder certs into nginx as it fails to come up without them in place. These will later be replaced by actual certs via LetsEncrypt"
-cp ./bin/ssl/placeholder_fullchain.pem ./build/ssl/private/fullchain.pem
-cp ./bin/ssl/placeholder_privkey.pem ./build/ssl/private/privkey.pem
 
 echo "### Bringing up all docker compose services"
 docker-compose up
