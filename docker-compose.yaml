@@ -7,7 +7,7 @@ services:
     restart: always
     hostname: ghost
     environment: # this section can be commented to start in dev mode by default
-      - url="http://nkorai.com/"
+      - url="https://nkorai.com/"
       - NODE_ENV=production # set either production or development, then it will load the respective config
   rproxy:
     container_name: rproxy
@@ -19,26 +19,30 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - "./build/nginx/:/etc/nginx"
-      - "./build/ssl/private:/etc/ssl/private"
-  # letsencrypt:
-  #   container_name: letsencrypt
-  #   image: gordonchan/auto-letsencrypt
-  #   volumes:
-  #     - /var/log/letsencrypt/:/var/log/letsencrypt
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #     - /etc/letsencrypt:/etc/letsencrypt
-  #     - /var/lib/letsencrypt:/var/lib/letsencrypt
-  #     - /tmp/letsencrypt/www:/tmp/letsencrypt/www
-  #     - /build/ssl/:/etc/nginx/certs
-  #   environment:
-  #     - EMAIL=nausherwan.korai@gmail.com
-  #     - SERVER_CONTAINER=rproxy
-  #     - WEBROOT_PATH=/tmp/letsencrypt/www
-  #     - CERTS_PATH=/etc/nginx/certs
-  #     - DOMAINS=nkorai.com
-  #     - CHECK_FREQ=7
-  #   restart: unless-stopped
+      - ./build/nginx/:/etc/nginx
+      - ./build/ssl/private:/etc/ssl/private
+      - ./build/ssl/private:/tmp/letsencrypt/www
+  letsencrypt:
+    container_name: letsencrypt
+    image: gordonchan/auto-letsencrypt
+    volumes:
+      - /var/log/letsencrypt/:/var/log/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/lib/letsencrypt:/var/lib/letsencrypt
+      - ./build/ssl/private:/etc/nginx/certs
+      - ./build/ssl/private/.well-known/acme-challenge:/tmp/letsencrypt/www
+    depends_on:
+      - "rproxy"
+    environment:
+      - EMAIL=nausherwan.korai@gmail.com
+      - SERVER_CONTAINER=rproxy
+      - WEBROOT_PATH=/tmp/letsencrypt/www
+      - CERTS_PATH=/etc/nginx/certs
+      - DOMAINS=nkorai.com
+      - CHECK_FREQ=7
+      - DRY_RUN=true
+    restart: unless-stopped
   ddns-updater:
     image: qmcgaw/ddns-updater
     container_name: ddns-updater

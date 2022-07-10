@@ -9,7 +9,7 @@ docker ps -all -q --filter "name=ddns-updater" | grep -q . && docker stop ddns-u
 ###
 # nginx setup
 ###
-if [-d "./build/nginx" ];
+if [ -d "./build/nginx" ];
 then
   echo "### Found nginx assets in build folder, skipping setup"
 else
@@ -20,16 +20,17 @@ else
   docker cp tmp_nginx:/etc/nginx/ ./build/
   docker cp tmp_nginx:/etc/ssl/ ./build/
   docker container rm tmp_nginx
-fi
 
-echo "### Creating sites nginx folders"
-mkdir ./build/nginx/conf.d/sites-available
-mkdir ./build/nginx/conf.d/sites-enabled
+  echo "### Creating sites nginx folders"
+  mkdir ./build/nginx/conf.d/sites-available
+  mkdir ./build/nginx/conf.d/sites-enabled
+
+  rm ./build/nginx/conf.d/default.conf
+fi
 
 echo "### Copying over new nginx configuration"
 cp ./bin/nginx/new_default.conf ./build/nginx/conf.d/sites-available
 cp ./bin/nginx/new_default.conf ./build/nginx/conf.d/sites-enabled
-rm ./build/nginx/conf.d/default.conf
 
 echo "### Pointing nginx default configuration to our custom new default configuration"
 sed -i "s|include /etc/nginx/conf.d/\*.conf;|include /etc/nginx/conf.d/sites-enabled/\*.conf;|g" ./build/nginx/nginx.conf
@@ -37,7 +38,7 @@ sed -i "s|include /etc/nginx/conf.d/\*.conf;|include /etc/nginx/conf.d/sites-ena
 ###
 # Distributed DNS
 ###
-if [-d "./build/ddns" ];
+if [ -d "./build/ddns" ];
 then
   echo "### Found dynamic DNS assets, skipping setup"
 else
