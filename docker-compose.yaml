@@ -21,7 +21,6 @@ services:
     volumes:
       - ./build/nginx/:/etc/nginx
       - ./build/ssl/private:/etc/ssl/private
-      - ./build/ssl/private:/tmp/letsencrypt/www
   letsencrypt:
     container_name: letsencrypt
     image: gordonchan/auto-letsencrypt
@@ -31,7 +30,7 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt
       - /var/lib/letsencrypt:/var/lib/letsencrypt
       - ./build/ssl/private:/etc/nginx/certs
-      - ./build/ssl/private/.well-known/acme-challenge:/tmp/letsencrypt/www
+      - ./build/ssl/private:/tmp/letsencrypt/www
     depends_on:
       - "rproxy"
     environment:
@@ -43,6 +42,11 @@ services:
       - CHECK_FREQ=7
       - DRY_RUN=true
     restart: unless-stopped
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://ghost:2368/.well-known/acme-challenge/me4real"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
   ddns-updater:
     image: qmcgaw/ddns-updater
     container_name: ddns-updater
