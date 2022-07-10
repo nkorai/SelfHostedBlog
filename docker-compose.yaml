@@ -7,7 +7,7 @@ services:
     restart: always
     hostname: ghost
     environment: # this section can be commented to start in dev mode by default
-      - url="http://74.111.98.229/"
+      - url="http://nkorai.com/"
       - NODE_ENV=production # set either production or development, then it will load the respective config
   rproxy:
     container_name: rproxy
@@ -19,8 +19,26 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - "./build/nginx/conf/nginx:/etc/nginx"
-      - "./build/ssl/private/:/etc/ssl/private"
+      - "./build/nginx/:/etc/nginx"
+      - "./build/ssl/private:/etc/ssl/private"
+  # letsencrypt:
+  #   container_name: letsencrypt
+  #   image: gordonchan/auto-letsencrypt
+  #   volumes:
+  #     - /var/log/letsencrypt/:/var/log/letsencrypt
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - /etc/letsencrypt:/etc/letsencrypt
+  #     - /var/lib/letsencrypt:/var/lib/letsencrypt
+  #     - /tmp/letsencrypt/www:/tmp/letsencrypt/www
+  #     - /build/ssl/:/etc/nginx/certs
+  #   environment:
+  #     - EMAIL=nausherwan.korai@gmail.com
+  #     - SERVER_CONTAINER=rproxy
+  #     - WEBROOT_PATH=/tmp/letsencrypt/www
+  #     - CERTS_PATH=/etc/nginx/certs
+  #     - DOMAINS=nkorai.com
+  #     - CHECK_FREQ=7
+  #   restart: unless-stopped
   ddns-updater:
     image: qmcgaw/ddns-updater
     container_name: ddns-updater
@@ -51,4 +69,3 @@ services:
       # Other
       - LOG_LEVEL=info
       - LOG_CALLER=hidden
-    restart: always
