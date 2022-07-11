@@ -6,9 +6,9 @@ services:
     image: ghost:alpine
     restart: always
     hostname: ghost
-    environment: # this section can be commented to start in dev mode by default
+    environment:
       - url="https://nkorai.com/"
-      - NODE_ENV=production # set either production or development, then it will load the respective config
+      - NODE_ENV=production
   rproxy:
     container_name: rproxy
     hostname: rproxy

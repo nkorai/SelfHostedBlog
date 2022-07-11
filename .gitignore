@@ -1,2 +1,3 @@
 bin/secrets/
 build/
+.cache/
