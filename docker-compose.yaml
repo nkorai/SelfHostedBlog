@@ -34,7 +34,6 @@ services:
       - ./build/ssl/private:/tmp/letsencrypt/www
     depends_on:
       - "rproxy"
-      - "upnp"
     environment:
       - EMAIL=nausherwan.korai@gmail.com
       - SERVER_CONTAINER=rproxy
