@@ -13,6 +13,7 @@ services:
     container_name: rproxy
     hostname: rproxy
     image: nginx
+    restart: always
     depends_on:
       - "ghost"
     ports:
@@ -33,6 +34,7 @@ services:
       - ./build/ssl/private:/tmp/letsencrypt/www
     depends_on:
       - "rproxy"
+      - "upnp"
     environment:
       - EMAIL=nausherwan.korai@gmail.com
       - SERVER_CONTAINER=rproxy
@@ -41,10 +43,11 @@ services:
       - DOMAINS=nkorai.com
       - CHECK_FREQ=7
       - DRY_RUN=true
-    restart: unless-stopped
+    restart: always
   ddns-updater:
     image: qmcgaw/ddns-updater
     container_name: ddns-updater
+    restart: always
     network_mode: bridge
     ports:
       - 8000:8000/tcp

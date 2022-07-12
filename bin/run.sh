@@ -1,12 +1,5 @@
 #!/bin/bash
 
-domains=(example.org)
-
-echo "### Attempting to shut down any stateless containers"
-docker ps -all -q --filter "name=rproxy" | grep -q . && docker stop rproxy && docker rm -fv rproxy
-docker ps -all -q --filter "name=ddns-updater" | grep -q . && docker stop ddns-updater && docker rm -fv ddns-updater
-docker ps -all -q --filter "name=letsencrypt" | grep -q . && docker stop letsencrypt && docker rm -fv letsencrypt
-
 ###
 # nginx setup
 ###
