@@ -7,6 +7,10 @@ If you are planning on pushing your fork of this to git or just in general I rea
 git update-index --assume-unchanged bin/secrets/
 ```
 
+### What you'll be deploying
+![](https://github.com/nkorai/SelfHostedBlog/blob/main/docker-compose-volumes.png)
+via https://github.com/pmsipilot/docker-compose-viz
+
 ## Setup
 1. Clone this repository to your local machine
 1. Install docker on Windows using WSL2 and ensure you can get Docker Desktop up and running
