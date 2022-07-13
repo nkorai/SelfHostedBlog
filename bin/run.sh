@@ -3,13 +3,17 @@
 export DOMAIN_NAME="" # This should be in the format "example.org" or "www.example.org" based on your redirect rules
 export EMAIL_ADDRESS="" # This is used by LetsEncrypt for recovery purposes and not used anywhere else in the solution
 
-if [ -z "$DOMAIN_NAME" ] || [ -z "$EMAIL_ADDRESS"]
+if [ -z "$DOMAIN_NAME" ] || [ -z "$EMAIL_ADDRESS" ]
 then
   echo "### Required environment variables not set. DOMAIN_NAME=${DOMAIN_NAME} EMAIL_ADDRESS=${EMAIL_ADDRESS}. Exiting.";
   exit 1
 fi
 
 echo "### Using the environment variables: DOMAIN_NAME=${DOMAIN_NAME} EMAIL_ADDRESS=${EMAIL_ADDRESS}"
+
+echo "### Creating build folder structure"
+mkdir -p ./build
+mkdir -p ./build/tmp
 
 ###
 # nginx setup
@@ -21,7 +25,7 @@ else
   echo "### nginx setup missing, seeding with a temporary container to ensure real nginx container launch later succeeds with volume mounts"
   # https://github.com/nginxinc/docker-nginx/issues/360
   docker container create --name tmp_nginx nginx
-  mkdir -p ./build/nginx/
+  mkdir ./build/nginx/
   docker cp tmp_nginx:/etc/nginx/ ./build/
   docker cp tmp_nginx:/etc/ssl/ ./build/
   docker container rm tmp_nginx
@@ -40,14 +44,15 @@ else
   cp ./bin/ssl/placeholder_privkey.pem ./build/ssl/private/privkey.pem
 fi
 
-echo "### Copying over new nginx configuration"
-cp ./bin/nginx/new_default.conf ./build/nginx/conf.d/sites-available
-
-echo "### Creating symlink between sites-available and sites-enabled"
-ln -s ./build/nginx/conf.d/sites-available/new_default.conf ./build/nginx/conf.d/sites-enabled/new_default.conf
+echo "### Copying over new nginx configuration to intermediate location"
+cp ./bin/nginx/new_default.conf ./build/tmp/new_default.conf
 
 echo "### Injecting DOMAIN_NAME into new nginx configuration"
-sed -i "s|DOMAIN_NAME|${DOMAIN_NAME}|g" ./build/nginx/conf.d/sites-available
+sed -i "s|DOMAIN_NAME|${DOMAIN_NAME}|g" ./build/tmp/new_default.conf
+
+echo "### Copying over new nginx configuration to final locations to follow convention"
+cp ./build/tmp/new_default.conf ./build/nginx/conf.d/sites-available/new_default.conf
+cp ./build/tmp/new_default.conf ./build/nginx/conf.d/sites-enabled/new_default.conf
 
 echo "### Pointing nginx default configuration to our custom new default configuration"
 sed -i "s|include /etc/nginx/conf.d/\*.conf;|include /etc/nginx/conf.d/sites-enabled/\*.conf;|g" ./build/nginx/nginx.conf
@@ -60,7 +65,7 @@ then
   echo "### Found dynamic DNS assets, skipping setup"
 else
   echo "### Creating DDNS folder and copying over our config"
-  mkdir -p ./build/ddns
+  mkdir ./build/ddns
   cp ./bin/ddns/config.json ./build/ddns
 fi
 
@@ -70,4 +75,4 @@ sed -i "s|DDNS_PASSWORD|${DDNS_PASSWORD}|g" ./build/ddns/config.json
 sed -i "s|DOMAIN_NAME|${DOMAIN_NAME}|g" ./build/ddns/config.json
 
 echo "### Bringing up all docker compose services"
-# docker-compose up -d
+docker-compose up -d

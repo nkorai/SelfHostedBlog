@@ -2,7 +2,7 @@
 This is a self hosted blog solution powered by Linux on Windows, docker, nginx, letencrypt, certbot, ghost and lots more.
 
 ### Pre-setup safety
-If you are planning your fork of this to git at all I really recommend making the secrets folder untracked to ensure you don't leak any important secrets:
+If you are planning on pushing your fork of this to git or just in general I really recommend making git ignore changes to the the secrets folder to ensure you don't accidentally leak any important secrets:
 ```bash
 git update-index --assume-unchanged bin/secrets/
 ```
@@ -22,4 +22,17 @@ git update-index --assume-unchanged bin/secrets/
   - DOMAIN_NAME
   - EMAIL_ADDRESS
 1. Run `./bin/run.sh` from the root directory to kick off the containers
-1. Hopefully everything just works
+1. Monitor Docker dashboard and ensure containers did not exit unexpectedly
+
+### General troubleshooting
+- Try running the clean script `./bin/clean.sh` to blow away the `build` folder, followed by re-running the `./bin/run.sh` script.
+- If you're running all the scripts from inside VSCode, try exiting/restarting the terminal and if that doesn't work try exiting/restarting VSCode
+- Try STOPPING and NOT DELETING your docker containers in Docker Desktop. NOTE: if you delete a container (like ghost) you will lose all data and it will be tough/impossible to get it back.
+- If your issue persists please create an issue, I'll do my best to help.
+
+### How do I use a different domain name provider?
+My setup uses namecheap, but you can use another service as long as it is supported by https://github.com/qdm12/ddns-updater and grab the key e.g.  of your domain name provider.
+Once you confirm it is supported by the DDNS updater project, you will need to enable DDNS with your provider and the modify the `bin/ddns/config.json` file to match your providers format, e.g. [FreeDNS](https://github.com/qdm12/ddns-updater/blob/master/docs/freedns.md) uses "token" rather than "password". In that case all you need to do is update the "password" property, leave in the `DDNS_PASSWORD` variable and add the token to `./bin/secrets/ddns_secret.txt`
+
+### You've checked in SSL certs into bin/ssl and they are now compromised
+They are dummy certs that were never used and are only there to ensure the nginx container comes up correctly, and are replaced by certbot with the letsencrypt real ones.
