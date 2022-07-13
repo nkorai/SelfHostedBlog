@@ -1,9 +1,20 @@
 #!/bin/bash
 
+export DOMAIN_NAME="" # This should be in the format "example.org" or "www.example.org" based on your redirect rules
+export EMAIL_ADDRESS="" # This is used by LetsEncrypt for recovery purposes and not used anywhere else in the solution
+
+if [ -z "$DOMAIN_NAME" ] || [ -z "$EMAIL_ADDRESS"]
+then
+  echo "### Required environment variables not set. DOMAIN_NAME=${DOMAIN_NAME} EMAIL_ADDRESS=${EMAIL_ADDRESS}. Exiting.";
+  exit 1
+fi
+
+echo "### Using the environment variables: DOMAIN_NAME=${DOMAIN_NAME} EMAIL_ADDRESS=${EMAIL_ADDRESS}"
+
 ###
 # nginx setup
 ###
-if [ -d "./build/nginx" ];
+if [ -d "./build/nginx" ]
 then
   echo "### Found nginx assets in build folder, skipping setup"
 else
@@ -31,7 +42,12 @@ fi
 
 echo "### Copying over new nginx configuration"
 cp ./bin/nginx/new_default.conf ./build/nginx/conf.d/sites-available
-cp ./bin/nginx/new_default.conf ./build/nginx/conf.d/sites-enabled
+
+echo "### Creating symlink between sites-available and sites-enabled"
+ln -s ./build/nginx/conf.d/sites-available/new_default.conf ./build/nginx/conf.d/sites-enabled/new_default.conf
+
+echo "### Injecting DOMAIN_NAME into new nginx configuration"
+sed -i "s|DOMAIN_NAME|${DOMAIN_NAME}|g" ./build/nginx/conf.d/sites-available
 
 echo "### Pointing nginx default configuration to our custom new default configuration"
 sed -i "s|include /etc/nginx/conf.d/\*.conf;|include /etc/nginx/conf.d/sites-enabled/\*.conf;|g" ./build/nginx/nginx.conf
@@ -48,9 +64,10 @@ else
   cp ./bin/ddns/config.json ./build/ddns
 fi
 
-echo "### Inject DDNS password into DDNS configuration"
-ddns_password=$(<bin/secrets/ddns_secret.txt)
-sed -i "s|ddns_password|${ddns_password}|g" ./build/ddns/config.json
+echo "### Inject DDNS password and domain name into DDNS configuration"
+DDNS_PASSWORD=$(<bin/secrets/ddns_secret.txt)
+sed -i "s|DDNS_PASSWORD|${DDNS_PASSWORD}|g" ./build/ddns/config.json
+sed -i "s|DOMAIN_NAME|${DOMAIN_NAME}|g" ./build/ddns/config.json
 
 echo "### Bringing up all docker compose services"
-docker-compose up
+# docker-compose up -d

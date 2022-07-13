@@ -2,9 +2,9 @@
   "settings": [
     {
       "provider": "namecheap",
-      "domain": "nkorai.com",
+      "domain": "DOMAIN_NAME",
       "host": "@",
-      "password": "ddns_password",
+      "password": "DDNS_PASSWORD",
       "provider_ip": true
     }
   ]

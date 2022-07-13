@@ -7,7 +7,7 @@ services:
     restart: always
     hostname: ghost
     environment:
-      - url="https://nkorai.com/"
+      - url="https://${DOMAIN_NAME}/"
       - NODE_ENV=production
   rproxy:
     container_name: rproxy
@@ -35,11 +35,11 @@ services:
     depends_on:
       - "rproxy"
     environment:
-      - EMAIL=nausherwan.korai@gmail.com
+      - EMAIL=${EMAIL_ADDRESS}
       - SERVER_CONTAINER=rproxy
       - WEBROOT_PATH=/tmp/letsencrypt/www
       - CERTS_PATH=/etc/nginx/certs
-      - DOMAINS=nkorai.com
+      - DOMAINS=${DOMAIN_NAME}
       - CHECK_FREQ=7
       - DRY_RUN=true
     restart: always
