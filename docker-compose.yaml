@@ -9,6 +9,8 @@ services:
     environment:
       - url="https://${DOMAIN_NAME}/"
       - NODE_ENV=production
+    volumes:
+      - ghost_content:/var/lib/ghost/content
   rproxy:
     container_name: rproxy
     hostname: rproxy
@@ -74,3 +76,10 @@ services:
       # Other
       - LOG_LEVEL=info
       - LOG_CALLER=hidden
+volumes:
+  ghost_content:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '${GHOST_CONTENT_DIRECTORY}'

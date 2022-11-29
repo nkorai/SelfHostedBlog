@@ -3,13 +3,18 @@
 export DOMAIN_NAME="" # This should be in the format "example.org" or "www.example.org" based on your redirect rules
 export EMAIL_ADDRESS="" # This is used by LetsEncrypt for recovery purposes and not used anywhere else in the solution
 
-if [ -z "$DOMAIN_NAME" ] || [ -z "$EMAIL_ADDRESS" ]
+# This is the directory where you want your ghost content to live. This directory will be backed up to AWS S3 in the future
+# It should look something like /mnt/c/Users/<your user>/<path to where you want to save the content>
+# I chose a folder in the root of this repo, i.e. where the docker-compose.yaml file is located. I named the directory "ghost_content"
+export GHOST_CONTENT_DIRECTORY=""
+
+if [ -z "$DOMAIN_NAME" ] || [ -z "$EMAIL_ADDRESS" ] || [ -z "$GHOST_CONTENT_DIRECTORY" ]
 then
-  echo "### Required environment variables not set. DOMAIN_NAME=${DOMAIN_NAME} EMAIL_ADDRESS=${EMAIL_ADDRESS}. Exiting.";
+  echo "### Required environment variables not set. DOMAIN_NAME=${DOMAIN_NAME} EMAIL_ADDRESS=${EMAIL_ADDRESS} GHOST_CONTENT_DIRECTORY=${GHOST_CONTENT_DIRECTORY}git . Exiting.";
   exit 1
 fi
 
-echo "### Using the environment variables: DOMAIN_NAME=${DOMAIN_NAME} EMAIL_ADDRESS=${EMAIL_ADDRESS}"
+echo "### Using the environment variables: DOMAIN_NAME=${DOMAIN_NAME} EMAIL_ADDRESS=${EMAIL_ADDRESS} GHOST_CONTENT_DIRECTORY=${GHOST_CONTENT_DIRECTORY}"
 
 echo "### Creating build folder structure"
 mkdir -p ./build
