@@ -1,12 +1,12 @@
 #!/bin/bash
 
-export DOMAIN_NAME="" # This should be in the format "example.org" or "www.example.org" based on your redirect rules
-export EMAIL_ADDRESS="" # This is used by LetsEncrypt for recovery purposes and not used anywhere else in the solution
+export DOMAIN_NAME="nkorai.com" # This should be in the format "example.org" or "www.example.org" based on your redirect rules
+export EMAIL_ADDRESS="nausherwan.korai@gmail.com" # This is used by LetsEncrypt for recovery purposes and not used anywhere else in the solution
 
 # This is the directory where you want your ghost content to live. This directory will be backed up to AWS S3 in the future
 # It should look something like /mnt/c/Users/<your user>/<path to where you want to save the content>
 # I chose a folder in the root of this repo, i.e. where the docker-compose.yaml file is located. I named the directory "ghost_content"
-export GHOST_CONTENT_DIRECTORY=""
+export GHOST_CONTENT_DIRECTORY="/mnt/c/Users/naush/Coding/SelfHostedBlog/ghost_content"
 
 if [ -z "$DOMAIN_NAME" ] || [ -z "$EMAIL_ADDRESS" ] || [ -z "$GHOST_CONTENT_DIRECTORY" ]
 then
@@ -78,6 +78,10 @@ echo "### Inject DDNS password and domain name into DDNS configuration"
 DDNS_PASSWORD=$(<bin/secrets/ddns_secret.txt)
 sed -i "s|DDNS_PASSWORD|${DDNS_PASSWORD}|g" ./build/ddns/config.json
 sed -i "s|DOMAIN_NAME|${DOMAIN_NAME}|g" ./build/ddns/config.json
+
+echo "### Injecting AWS Access Key ID and AWS Secret Access Key into env variables. This can only be accessed by containers that you explicitly pass them on to."
+export AWS_ACCESS_KEY_ID=$(<bin/secrets/aws_access_key_id.txt)
+export AWS_SECRET_ACCESS_KEY=$(<bin/secrets/aws_secret_access_key.txt)
 
 echo "### Bringing up all docker compose services"
 docker-compose up -d
