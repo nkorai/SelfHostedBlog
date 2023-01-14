@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export DOMAIN_NAME="" # This should be in the format "example.org" or "www.example.org" based on your redirect rules
-export EMAIL_ADDRESS="" # This is used by LetsEncrypt for recovery purposes and not used anywhere else in the solution
+export DOMAIN_NAME="nkorai.com" # This should be in the format "example.org" or "www.example.org" based on your redirect rules
+export EMAIL_ADDRESS="nausherwan.korai@gmail.com" # This is used by LetsEncrypt for recovery purposes and not used anywhere else in the solution
 
 # This is the directory where you want your ghost content to live. This directory will be backed up to AWS S3 in the future
 # I chose a folder in the root of this repo, i.e. where the docker-compose.yaml file is located. I named the directory "ghost_content"
@@ -9,7 +9,7 @@ export GHOST_CONTENT_DIRECTORY="/ghost_content"
 
 # This is the full path of the GHOST_CONTENT_DIRECTORY
 # It should look something like /mnt/c/Users/<your user>/<path to where you want to save the content>
-export GHOST_CONTENT_DIRECTORY_FULL_PATH=""
+export GHOST_CONTENT_DIRECTORY_FULL_PATH="/mnt/c/Users/naush/Coding/SelfHostedBlog/ghost_content"
 
 if [ -z "$DOMAIN_NAME" ] || [ -z "$EMAIL_ADDRESS" ] || [ -z "$GHOST_CONTENT_DIRECTORY" ]
 then
