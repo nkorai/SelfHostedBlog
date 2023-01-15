@@ -4,7 +4,7 @@ This is a self hosted blog solution powered by Linux on Windows, docker, nginx, 
 ### Pre-setup safety
 If you are planning on pushing your fork of this to git or just in general I really recommend making git ignore changes to the the secrets folder to ensure you don't accidentally leak any important secrets:
 ```bash
-git update-index --assume-unchanged bin/secrets/
+git update-index --skip-worktree bin/secrets/*
 ```
 
 ### What you'll be deploying
