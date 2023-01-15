@@ -11,6 +11,7 @@ services:
       - NODE_ENV=production
     volumes:
       - /ghost-content:/var/lib/ghost/content
+      - ${PWD}/build/ghost/config.production.json:/var/lib/ghost/config.production.json
   rproxy:
     container_name: rproxy
     hostname: rproxy

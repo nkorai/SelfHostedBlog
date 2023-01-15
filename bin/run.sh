@@ -86,5 +86,20 @@ echo "### Injecting AWS Access Key ID and AWS Secret Access Key into env variabl
 export AWS_ACCESS_KEY_ID=$(<bin/secrets/aws_access_key_id.txt)
 export AWS_SECRET_ACCESS_KEY=$(<bin/secrets/aws_secret_access_key.txt)
 
+echo "### Injecting Mailgun credentials into Ghost config.production.json"
+if [ -d "./build/ghost" ];
+then
+  echo "### Found dynamic Ghost assets, skipping setup"
+else
+  echo "### Creating Ghost folder and copying over our config.production.json"
+  mkdir ./build/ghost
+  cp ./bin/ghost/config.production.json ./build/ghost
+fi
+
+MAILGUN_USER=$(<bin/secrets/mailgun_user.txt)
+MAILGUN_PASSWORD=$(<bin/secrets/mailgun_password.txt)
+sed -i "s|MAILGUN_USER|${MAILGUN_USER}|g" ./build/ghost/config.production.json
+sed -i "s|MAILGUN_PASSWORD|${MAILGUN_PASSWORD}|g" ./build/ghost/config.production.json
+
 echo "### Bringing up all docker compose services"
 docker-compose up -d
