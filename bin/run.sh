@@ -8,8 +8,8 @@ export EMAIL_ADDRESS="nausherwan.korai@gmail.com" # This is used by LetsEncrypt 
 export GHOST_CONTENT_DIRECTORY="/ghost_content"
 
 # This is the full path of the GHOST_CONTENT_DIRECTORY
-# It should look something like /mnt/c/Users/<your user>/<path to where you want to save the content>
-export GHOST_CONTENT_DIRECTORY_FULL_PATH="/mnt/c/Users/naush/Coding/SelfHostedBlog/ghost_content"
+# It should look something like /c/Users/<your user>/<path to where you want to save the content>
+export GHOST_CONTENT_DIRECTORY_FULL_PATH="/c/Users/naush/Coding/SelfHostedBlog/ghost_content"
 
 if [ -z "$DOMAIN_NAME" ] || [ -z "$EMAIL_ADDRESS" ] || [ -z "$GHOST_CONTENT_DIRECTORY" ]
 then
@@ -54,6 +54,9 @@ fi
 
 echo "### Copying over new nginx configuration to intermediate location"
 cp ./bin/nginx/new_default.conf ./build/tmp/new_default.conf
+
+echo "### Grant SSL folder access to everyone"
+chmod ugo+rwx ./build/ssl/private
 
 echo "### Injecting DOMAIN_NAME into new nginx configuration"
 sed -i "s|DOMAIN_NAME|${DOMAIN_NAME}|g" ./build/tmp/new_default.conf
