@@ -7,10 +7,6 @@ export EMAIL_ADDRESS="nausherwan.korai@gmail.com" # This is used by LetsEncrypt 
 # I chose a folder in the root of this repo, i.e. where the docker-compose.yaml file is located. I named the directory "ghost_content"
 export GHOST_CONTENT_DIRECTORY="/ghost_content"
 
-# This is the full path of the GHOST_CONTENT_DIRECTORY
-# It should look something like /c/Users/<your user>/<path to where you want to save the content>
-export GHOST_CONTENT_DIRECTORY_FULL_PATH="/c/Users/naush/Coding/SelfHostedBlog/ghost_content"
-
 if [ -z "$DOMAIN_NAME" ] || [ -z "$EMAIL_ADDRESS" ] || [ -z "$GHOST_CONTENT_DIRECTORY" ]
 then
   echo "### Required environment variables not set. DOMAIN_NAME=${DOMAIN_NAME} EMAIL_ADDRESS=${EMAIL_ADDRESS} GHOST_CONTENT_DIRECTORY=${GHOST_CONTENT_DIRECTORY}git . Exiting.";

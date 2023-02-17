@@ -3,14 +3,14 @@ version: '3'
 services:
   ghost:
     container_name: ghost
-    image: ghost:alpine
+    image: ghost:5.34.0-alpine
     restart: always
     hostname: ghost
     environment:
       - url="https://${DOMAIN_NAME}/"
       - NODE_ENV=production
     volumes:
-      - /ghost-content:/var/lib/ghost/content
+      - ${PWD}/ghost_content:/var/lib/ghost/content
       - ${PWD}/build/ghost/config.production.json:/var/lib/ghost/config.production.json
   rproxy:
     container_name: rproxy
@@ -23,8 +23,8 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - ./build/nginx/:/etc/nginx
-      - ./build/ssl/private:/etc/ssl/private
+      - ${PWD}/build/nginx/:/etc/nginx
+      - ${PWD}/build/ssl/private:/etc/ssl/private
   letsencrypt:
     container_name: letsencrypt
     image: gordonchan/auto-letsencrypt
@@ -85,4 +85,4 @@ services:
       - "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
       - BACKUP_INTERVAL=12h
     volumes:
-      - "${GHOST_CONTENT_DIRECTORY_FULL_PATH}:/data"
+      - "${PWD}/ghost_content:/data"
