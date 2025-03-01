@@ -78,11 +78,14 @@ services:
       - LOG_LEVEL=info
       - LOG_CALLER=hidden
   s3_backup:
-    image: elementar/s3-volume
-    command: /data s3://nkorai-blog
+    image: peterrus/s3-cron-backup
     environment:
-      - "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
-      - "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
-      - BACKUP_INTERVAL=12h
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET_URL=s3://nkorai-blog
+      - AWS_DEFAULT_REGION=us-west-2
+      - CRON_SCHEDULE=0 0 * * *
+      - BACKUP_NAME=blog-backup
     volumes:
-      - "${PWD}/ghost_content:/data"
+      - "${PWD}/ghost_content:/data:ro" #use ro to make sure the volume gets mounted read-only
+    restart: always
