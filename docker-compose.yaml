@@ -3,7 +3,7 @@ version: '3'
 services:
   ghost:
     container_name: ghost
-    image: ghost:5.34.0-alpine
+    image: ghost:5.110.2-alpine
     restart: always
     hostname: ghost
     environment:
