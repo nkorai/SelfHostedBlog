@@ -1,42 +1,180 @@
 # Self Hosted Blog
-This is a self hosted blog solution powered by Linux on Windows, docker, nginx, letencrypt, certbot, ghost and lots more.
 
-### Pre-setup safety
-If you are planning on pushing your fork of this to git or just in general I really recommend making git ignore changes to the the secrets folder to ensure you don't accidentally leak any important secrets:
+This is a self-hosted blog solution powered by Docker, Nginx, Let's Encrypt, Ghost, and other self-managed components on Linux (tested on Ubuntu Server). This stack is designed to run on real hardware in your home — no cloud required.
+
+---
+
+### ⚠️ Pre-setup Safety
+
+If you plan to fork or push this repo, **make sure Git ignores your secrets**:
+
 ```bash
 git update-index --skip-worktree bin/secrets/*
 ```
 
-### What you'll be deploying
-![](https://github.com/nkorai/SelfHostedBlog/blob/main/docker-compose-volumes.png)
+Double-check nothing sensitive is staged via `git status`.
+
+---
+
+### 🔧 What You'll Be Deploying
+
+![](https://github.com/nkorai/SelfHostedBlog/blob/main/docker-compose-volumes.png)  
 via https://github.com/pmsipilot/docker-compose-viz
 
-## Setup
-1. Clone this repository to your local machine
-1. Install docker on Windows using WSL2 and ensure you can get Docker Desktop up and running
-    1. https://docs.docker.com/desktop/windows/install/
-1. Port forward ports 80 and 443 to your the private IP address of the computer you want to host the blog on
-    1. Do this at your own risk
-    1. This is done to make your blog accessible from the public internet, which is a requirement for the SSL part of the solution.
-    1. Google how to do this for instructions as it depends on your router.
-      1. I haven't figured out how to automate this for a HyperV VM which is what I believe WSL2 runs on. I did get it working in just Windows and just Ubuntu but WSL2 is where I hit a roadblock.
-1. Enable Dynamic DNS with your domain provider and set a DDNS password.
-    1. Copy and paste the DDNS password into `bin/secrets/ddns_secret.txt`. If you ran the command to ignore the secrets folder, this shouldn't get checked into git but double check just to be sure
-1. Set the following environment variables in `bin/run.sh`. More instructions and reasoning are in comments around the variables
-    1. DOMAIN_NAME
-    1. EMAIL_ADDRESS
-1. Run `./bin/run.sh` from the root directory to kick off the containers
-1. Monitor Docker dashboard and ensure containers did not exit unexpectedly
+---
 
-### General troubleshooting
-- Try running the clean script `./bin/clean.sh` to blow away the `build` folder, followed by re-running the `./bin/run.sh` script.
-- If you're running all the scripts from inside VSCode, try exiting/restarting the terminal and if that doesn't work try exiting/restarting VSCode
-- Try STOPPING and NOT DELETING your docker containers in Docker Desktop. NOTE: if you delete a container (like ghost) you will lose all data and it will be tough/impossible to get it back.
-- If your issue persists please create an issue, I'll do my best to help.
+## ✅ Setup Instructions
 
-### How do I use a different domain name provider?
-My setup uses namecheap, but you can use another service as long as it is supported by https://github.com/qdm12/ddns-updater and grab the key e.g.  of your domain name provider.
-Once you confirm it is supported by the DDNS updater project, you will need to enable DDNS with your provider and the modify the `bin/ddns/config.json` file to match your providers format, e.g. [FreeDNS](https://github.com/qdm12/ddns-updater/blob/master/docs/freedns.md) uses "token" rather than "password". In that case all you need to do is update the "password" property, leave in the `DDNS_PASSWORD` variable and add the token to `./bin/secrets/ddns_secret.txt`
+### 1. System Requirements
 
-### I've checked in SSL certs into bin/ssl and they are now compromised
-They are dummy certs that were never used and are only there to ensure the nginx container comes up correctly, and are replaced by certbot with the letsencrypt real ones in `build/ssl/private` which is `.gitignore`-ed.
+- A Linux machine (e.g. Ubuntu Server on an Intel Mac Mini)
+- Public internet access (with port forwarding)
+- A domain name you control (e.g. `nkorai.com`)
+- Docker installed: [Install Docker](https://docs.docker.com/engine/install/)
+
+---
+
+### 2. Networking & DNS
+
+- **Port forward** ports `80` and `443` from your home router to your server's internal IP.
+- **Enable Dynamic DNS (DDNS)** with your domain provider.
+- Store your DDNS password in:  
+  `bin/secrets/ddns_secret.txt`
+
+---
+
+### 3. Configure Environment
+
+Edit the top of `bin/run.sh` to define:
+
+```bash
+export DOMAIN_NAME="yourdomain.com"
+export EMAIL_ADDRESS="your@email.com"
+export GHOST_CONTENT_DIRECTORY="/ghost_content"
+```
+
+---
+
+### 4. Seed Secrets
+
+Create these files:
+
+```bash
+bin/secrets/
+├── aws_access_key_id.txt
+├── aws_secret_access_key.txt
+├── ddns_secret.txt
+├── mailgun_user.txt
+└── mailgun_password.txt
+```
+
+---
+
+### 5. First-Time Run
+
+```bash
+./bin/user_run.sh
+```
+
+This will:
+
+- Initialize the folder structure
+- Inject your secrets
+- Set up nginx, Ghost, Let's Encrypt, DDNS, and backups
+- Start your Docker containers
+
+You should be able to visit your blog at:  
+📍 `https://yourdomain.com`
+
+---
+
+## 🚀 Make It Run On Boot (systemd)
+
+Enable automatic restarts after power loss or reboots:
+
+1. Create the systemd service:
+
+```ini
+# /etc/systemd/system/selfhostedblog.service
+[Unit]
+Description=Self Hosted Ghost Blog Stack
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/youruser/SelfHostedBlog
+ExecStart=/home/youruser/SelfHostedBlog/bin/user_run.sh
+ExecStop=/home/youruser/SelfHostedBlog/bin/user_clean.sh
+TimeoutStartSec=300
+TimeoutStopSec=300
+
+[Install]
+WantedBy=multi-user.target
+```
+
+2. Enable and start the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable selfhostedblog.service
+sudo systemctl start selfhostedblog.service
+```
+
+Now the stack auto-starts after reboots.
+
+---
+
+## 🪩 Cleaning & Resetting
+
+To stop everything and clean up:
+
+```bash
+./bin/user_clean.sh
+```
+
+This removes containers and deletes the `./build` directory (but not your Ghost content).
+
+---
+
+## 🔧 Troubleshooting
+
+- If something breaks, run `user_clean.sh` followed by `user_run.sh`
+- Check `docker ps` and `docker logs <container>` for issues
+- Confirm DNS is correctly resolving your domain name
+- Check `journalctl -u selfhostedblog.service` for systemd issues
+
+---
+
+## 🌍 Supported Domain Providers
+
+This setup uses [qmcgaw/ddns-updater](https://github.com/qdm12/ddns-updater) — most major providers are supported (Namecheap, Cloudflare, GoDaddy, etc.).
+
+Update `bin/ddns/config.json` format as needed. If your provider uses a `token` instead of a `password`, you can still assign that to the `DDNS_PASSWORD` placeholder in your secret file.
+
+---
+
+## 🔮 About the Dummy SSL Certs
+
+Certs in `bin/ssl/` are **placeholders only**, used so nginx can boot on first run. These are replaced by real Let's Encrypt certs after the stack launches.
+
+Real certs are stored in:  
+`./build/ssl/private/` (gitignored)
+
+No real secrets are exposed by default.
+
+---
+
+## 💬 Want to Contribute or Report an Issue?
+
+Create a GitHub Issue and include:
+- Logs
+- Your OS version
+- What you’ve tried so far
+
+I’ll do my best to help.
+
+---
+
+

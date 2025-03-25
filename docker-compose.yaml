@@ -28,11 +28,12 @@ services:
   letsencrypt:
     container_name: letsencrypt
     image: gordonchan/auto-letsencrypt
+    user: root
     volumes:
       - /var/log/letsencrypt/:/var/log/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/letsencrypt:/etc/letsencrypt
-      - /var/lib/letsencrypt:/var/lib/letsencrypt
+      - ./build/letsencrypt:/var/lib/letsencrypt
       - ./build/ssl/private:/etc/nginx/certs
       - ./build/ssl/private:/tmp/letsencrypt/www
     depends_on:
@@ -44,7 +45,7 @@ services:
       - CERTS_PATH=/etc/nginx/certs
       - DOMAINS=${DOMAIN_NAME}
       - CHECK_FREQ=7
-      - DRY_RUN=true
+      - DRY_RUN=false
     restart: always
   ddns-updater:
     image: qmcgaw/ddns-updater

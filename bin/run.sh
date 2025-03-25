@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd "$(dirname "$0")/.."
+
 export DOMAIN_NAME="nkorai.com" # This should be in the format "example.org" or "www.example.org" based on your redirect rules
 export EMAIL_ADDRESS="nausherwan.korai@gmail.com" # This is used by LetsEncrypt for recovery purposes and not used anywhere else in the solution
 
@@ -101,4 +103,8 @@ sed -i "s|MAILGUN_USER|${MAILGUN_USER}|g" ./build/ghost/config.production.json
 sed -i "s|MAILGUN_PASSWORD|${MAILGUN_PASSWORD}|g" ./build/ghost/config.production.json
 
 echo "### Bringing up all docker compose services"
-docker-compose up -d
+if ! docker compose up -d; then
+  echo "❌ docker compose failed"
+  exit 1
+fi
+
