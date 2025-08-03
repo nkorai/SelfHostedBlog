@@ -105,8 +105,8 @@ Requires=docker.service
 Type=oneshot
 RemainAfterExit=yes
 WorkingDirectory=/home/youruser/SelfHostedBlog
-ExecStart=/home/youruser/SelfHostedBlog/bin/user_run.sh
-ExecStop=/home/youruser/SelfHostedBlog/bin/user_clean.sh
+ExecStart=/home/youruser/SelfHostedBlog/bin/run.sh
+ExecStop=/home/youruser/SelfHostedBlog/bin/clean.sh
 TimeoutStartSec=300
 TimeoutStopSec=300
 
